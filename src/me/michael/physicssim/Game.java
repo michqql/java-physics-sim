@@ -1,48 +1,62 @@
 package me.michael.physicssim;
 
-import me.michael.physicssim.world.World;
+import me.michael.physicssim.input.KeyHandler;
+import me.michael.physicssim.input.MouseHandler;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferStrategy;
+import java.awt.event.KeyEvent;
 
-public class PhysicsSimMain implements Runnable {
+public class Game extends JPanel implements Runnable {
 
-    private static boolean started = false;
-    public static void main(String[] args) {
-        if(!started) {
-            started = true;
-            new PhysicsSimMain().start();
-        }
-    }
+    // Window size
+    final int tileSize = 16;
+    final int scale = 3;
 
-    private final Thread thread;
-    private boolean running = false;
+    final int scaledTileSize = tileSize * scale;
+    final int tileColumns = 16;
+    final int tileRows = 12;
+
+    final int width = scaledTileSize * tileColumns;
+    final int height = scaledTileSize * tileRows;
+
+    // Game loop
+    private Thread thread;
+    private boolean running;
     private double desiredFPS;
     private double desiredUPS;
     private double timeU;
     private double timeF;
-
-    private String title = "Physics Sim";
-    private int width = 900, height = 700;
-    private Window window;
     private int globalFrames, globalUpdates;
 
-    private World world;
+    // Game objects
+    private final KeyHandler keyHandler;
+    private final MouseHandler mouseHandler;
 
-    public PhysicsSimMain() {
-        setDesiredFPS(60.0);
-        setDesiredUPS(60.0);
-        this.thread = new Thread(this);
+    public Game() {
+        super.setPreferredSize(new Dimension(width, height));
+        super.setBackground(Color.BLACK);
+        super.setDoubleBuffered(true);
+        super.setFocusable(true);
+
+        this.keyHandler = new KeyHandler();
+        this.mouseHandler = new MouseHandler();
+
+        super.addKeyListener(keyHandler);
+        super.addMouseListener(mouseHandler);
+        super.addMouseMotionListener(mouseHandler);
     }
 
     public void start() {
         if(running)
             return;
 
+        setDesiredFPS(60.0);
+        setDesiredUPS(60.0);
+
         running = true;
-        window = new Window(title, width, height);
-        world = new World(16, 16);
-        run();
+        this.thread = new Thread(this);
+        thread.start();
     }
 
     public void stop() {
@@ -94,29 +108,31 @@ public class PhysicsSimMain implements Runnable {
     }
 
     private void update() {
-        world.update();
-        world.createSandBlockAt(5, 6);
+        keyHandler.update();
+        mouseHandler.update();
     }
 
     private void render() {
-        BufferStrategy bs = window.getBufferStrategy();
-        if(bs == null)
-            return;
+        repaint();
+    }
 
-        Graphics g = bs.getDrawGraphics();
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, width, height);
+        final String fpsUps = "FPS: " + globalFrames + ", UPS: " + globalUpdates;
+        final String position = "X: " + mouseHandler.getX() + ", Y: " + mouseHandler.getY();
+        final String aKeyHeld = "A: " + (keyHandler.isKeyDown(KeyEvent.VK_A) ? "pressed" : "released") +
+                ", length: " + keyHandler.getTicksKeyHeld(KeyEvent.VK_A);
 
-        // Draw objects in here
         g.setColor(Color.WHITE);
-        g.drawString("FPS: " + globalFrames + ", UPS: " + globalUpdates, 1, 12);
+        g.drawString(fpsUps, 1, 12);
+        g.drawString(position, 1, 25);
+        g.drawString(aKeyHeld, 1, 38);
 
         g.setColor(Color.BLACK);
-        world.render(g);
 
         g.dispose();
-        bs.show();
     }
 
     public void setDesiredFPS(double desiredFPS) {

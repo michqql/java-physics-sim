@@ -1,18 +1,15 @@
 package me.michael.physicssim.world;
 
+import me.michael.physicssim.IUpdate;
+
 import java.awt.*;
 
-public abstract class Block {
+public abstract class Block implements IUpdate {
 
-    protected final World world;
-    protected int x, y;
-    protected Color color = new Color(0xffffffff, true);
 
-    public Block(World world, int x, int y) {
-        this.world = world;
-        this.x = x;
-        this.y = y;
+
+    @Override
+    public void render(Graphics g) {
+
     }
-
-    public abstract void updatePhysics();
 }
