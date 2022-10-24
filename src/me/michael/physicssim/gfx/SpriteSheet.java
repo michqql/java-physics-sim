@@ -11,10 +11,13 @@ public class SpriteSheet {
     private final int width, height;
     private final BufferedImage image;
 
-    private int spriteWidth, spriteHeight;
+    private final int spriteWidth, spriteHeight;
 
-    public SpriteSheet(String path) {
+    public SpriteSheet(String path, int spriteWidth, int spriteHeight) {
         this.path = path;
+        this.spriteWidth = spriteWidth;
+        this.spriteHeight = spriteHeight;
+
         // load sprite sheet image
         try {
             InputStream in = SpriteSheet.class.getResourceAsStream(path);
@@ -27,5 +30,13 @@ public class SpriteSheet {
         } catch (IOException e) {
             throw new RuntimeException("Could not find image at location: " + path, e);
         }
+    }
+
+    public Sprite getSpriteAt(int x, int y) {
+        return getSpriteAt(x, y, spriteWidth, spriteHeight);
+    }
+
+    public Sprite getSpriteAt(int x, int y, int width, int height) {
+        return new Sprite(this, image.getSubimage(x, y, width, height));
     }
 }

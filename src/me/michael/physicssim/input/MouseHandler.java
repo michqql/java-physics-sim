@@ -49,17 +49,13 @@ public class MouseHandler implements MouseListener, MouseMotionListener, IUpdate
     }
 
     @Override
-    public void update() {
+    public void update(double dt) {
         this.lastButtons = buttons;
         for(int code = 0; code < buttons.length; code++) {
             if(buttons[code])
                 longHoldButtons[code]++;
         }
     }
-
-    // unused method
-    @Override
-    public void render(Graphics g) {}
 
     // Button presses
     @Override

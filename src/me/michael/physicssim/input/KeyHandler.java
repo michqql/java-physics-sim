@@ -38,17 +38,13 @@ public class KeyHandler implements KeyListener, IUpdate {
     }
 
     @Override
-    public void update() {
+    public void update(double dt) {
         lastKeys = keys;
         for(int keyCode = 0; keyCode < keys.length; keyCode++) {
             if(keys[keyCode])
                 longHoldKeys[keyCode]++;
         }
     }
-
-    // unused method
-    @Override
-    public void render(Graphics g) {}
 
     @Override
     public void keyPressed(KeyEvent e) {

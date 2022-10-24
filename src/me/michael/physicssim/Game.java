@@ -2,6 +2,7 @@ package me.michael.physicssim;
 
 import me.michael.physicssim.input.KeyHandler;
 import me.michael.physicssim.input.MouseHandler;
+import me.michael.physicssim.world.World;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +34,9 @@ public class Game extends JPanel implements Runnable {
     private final KeyHandler keyHandler;
     private final MouseHandler mouseHandler;
 
+    private World world;
+    private Camera camera;
+
     public Game() {
         super.setPreferredSize(new Dimension(width, height));
         super.setBackground(Color.BLACK);
@@ -45,6 +49,8 @@ public class Game extends JPanel implements Runnable {
         super.addKeyListener(keyHandler);
         super.addMouseListener(mouseHandler);
         super.addMouseMotionListener(mouseHandler);
+
+        this.camera = new Camera(keyHandler, world);
     }
 
     public void start() {
@@ -86,7 +92,7 @@ public class Game extends JPanel implements Runnable {
             initialTime = currentTime;
 
             if (deltaU >= 1) {
-                update();
+                update(deltaU);
                 updates++;
                 deltaU--;
             }
@@ -107,9 +113,13 @@ public class Game extends JPanel implements Runnable {
         }
     }
 
-    private void update() {
-        keyHandler.update();
-        mouseHandler.update();
+    private void update(double dt) {
+        dt /= desiredUPS;
+
+        keyHandler.update(dt);
+        mouseHandler.update(dt);
+
+        camera.update(dt);
     }
 
     private void render() {
@@ -120,19 +130,33 @@ public class Game extends JPanel implements Runnable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Debug info
         final String fpsUps = "FPS: " + globalFrames + ", UPS: " + globalUpdates;
+        g.setColor(Color.WHITE);
+        g.drawString(fpsUps, 1, 12);
+        drawDebugInfo(g);
+
+        // Game objects
+        camera.render(g);
+
+        g.dispose();
+    }
+
+    private boolean debugEnabled = false;
+    private void drawDebugInfo(Graphics g) {
+        if(keyHandler.wasKeyPressed(KeyEvent.VK_F1)) {
+            debugEnabled = !debugEnabled;
+        }
+
+        if(!debugEnabled)
+            return;
+
         final String position = "X: " + mouseHandler.getX() + ", Y: " + mouseHandler.getY();
         final String aKeyHeld = "A: " + (keyHandler.isKeyDown(KeyEvent.VK_A) ? "pressed" : "released") +
                 ", length: " + keyHandler.getTicksKeyHeld(KeyEvent.VK_A);
 
-        g.setColor(Color.WHITE);
-        g.drawString(fpsUps, 1, 12);
         g.drawString(position, 1, 25);
         g.drawString(aKeyHeld, 1, 38);
-
-        g.setColor(Color.BLACK);
-
-        g.dispose();
     }
 
     public void setDesiredFPS(double desiredFPS) {

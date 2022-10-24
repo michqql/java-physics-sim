@@ -16,10 +16,15 @@ public class Chunk {
      *
      * @param relX between 0 (inclusive) and maximum tiles per chunk side (exclusive)
      * @param relY between 0 (inclusive) and maximum tiles per chunk side (exclusive)
-     * @return
+     * @return the block at the given position
      */
     public Block getBlockAt(int relX, int relY) {
         int index = relY * TILES_PER_CHUNK_SIDE + relX;
         return blocks[index];
+    }
+
+    public void setBlockAt(int relX, int relY, Block block) {
+        int index = relY * TILES_PER_CHUNK_SIDE + relX;
+        blocks[index] = block;
     }
 }
