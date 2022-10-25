@@ -38,9 +38,8 @@ public class Camera implements IUpdate, IRender {
     }
 
     @Override
-    public void update(double dt) {
-        // Implementation 2
-        // New Velocity = old_velocity * (1 - delta_time * transition_speed) + desired_velocity * (delta_time * transition_speed)
+    public void update(double dt, Game game) {
+        // Implementation 3
         ax = 0;
         ay = 0;
         if(keyHandler.isKeyDown(KeyEvent.VK_W)) // move up, decrease y value
@@ -55,44 +54,19 @@ public class Camera implements IUpdate, IRender {
         if(keyHandler.isKeyDown(KeyEvent.VK_D))
             ax += movementSpeed;
 
+        // New Velocity = old_velocity * (1 - delta_time * transition_speed) + desired_velocity * (delta_time * transition_speed)
         vx = vx * (1 - friction * dt) + ax * (friction * dt);
         vy = vy * (1 - friction * dt) + ay * (friction * dt);
 
         x += vx * dt;
         y += vy * dt;
-
-        // Implementation 2
-//        ax = keyHandler.getTicksKeyHeld(KeyEvent.VK_D) - keyHandler.getTicksKeyHeld(KeyEvent.VK_A);
-//        ay = keyHandler.getTicksKeyHeld(KeyEvent.VK_S) - keyHandler.getTicksKeyHeld(KeyEvent.VK_W);
-//
-//        // v = u + at
-//        vx = vx + (ax * dt);
-//        vy = vy + (ay * dt);
-//
-//        // s = ut + (1/2)at^2
-//        x += (vx * dt) + ((1 / 2D) * ax * (dt * dt));
-//        y += (vy * dt) + ((1 / 2D) * ay * (dt * dt));
-
-        // Implementation 1
-//        if(keyHandler.isKeyDown(KeyEvent.VK_W)) // move up, decrease y value
-//            y--;
-//
-//        if(keyHandler.isKeyDown(KeyEvent.VK_S))
-//            y++;
-//
-//        if(keyHandler.isKeyDown(KeyEvent.VK_A))
-//            x--;
-//
-//        if(keyHandler.isKeyDown(KeyEvent.VK_D))
-//            x++;
     }
 
     @Override
-    public void render(Graphics g) {
+    public void render(Graphics g, Game game) {
         g.setColor(Color.GREEN);
         g.drawRect((int) x, (int) y, 1, 1);
 
-        // Implementation 2
         g.setColor(Color.WHITE);
         g.drawString("ax: " + ax + ", ay: " + ay, 1, 100);
         g.drawString("vx: " + vx + ", vy: " + vy, 1, 120);

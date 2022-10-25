@@ -1,5 +1,6 @@
 package me.michael.physicssim.input;
 
+import me.michael.physicssim.Game;
 import me.michael.physicssim.IUpdate;
 
 import java.awt.*;
@@ -49,8 +50,8 @@ public class MouseHandler implements MouseListener, MouseMotionListener, IUpdate
     }
 
     @Override
-    public void update(double dt) {
-        this.lastButtons = buttons;
+    public void update(double dt, Game game) {
+        System.arraycopy(buttons, 0, lastButtons, 0, numButtons);
         for(int code = 0; code < buttons.length; code++) {
             if(buttons[code])
                 longHoldButtons[code]++;

@@ -1,20 +1,20 @@
 package me.michael.physicssim;
 
+import me.michael.physicssim.entity.Player;
 import me.michael.physicssim.input.KeyHandler;
 import me.michael.physicssim.input.MouseHandler;
 import me.michael.physicssim.world.World;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
 public class Game extends JPanel implements Runnable {
 
     // Window size
-    final int tileSize = 16;
+    public static final int TILE_SIZE = 16;
     final int scale = 3;
 
-    final int scaledTileSize = tileSize * scale;
+    final int scaledTileSize = TILE_SIZE * scale;
     final int tileColumns = 16;
     final int tileRows = 12;
 
@@ -30,12 +30,13 @@ public class Game extends JPanel implements Runnable {
     private double timeF;
     private int globalFrames, globalUpdates;
 
-    // Game objects
-    private final KeyHandler keyHandler;
-    private final MouseHandler mouseHandler;
+    // Static Game objects
+    private static KeyHandler keyHandler;
+    private static MouseHandler mouseHandler;
+    private final Debugger debugger;
 
     private World world;
-    private Camera camera;
+    private Player player;
 
     public Game() {
         super.setPreferredSize(new Dimension(width, height));
@@ -43,14 +44,16 @@ public class Game extends JPanel implements Runnable {
         super.setDoubleBuffered(true);
         super.setFocusable(true);
 
-        this.keyHandler = new KeyHandler();
-        this.mouseHandler = new MouseHandler();
+        keyHandler = new KeyHandler();
+        mouseHandler = new MouseHandler();
+        this.debugger = new Debugger(this, keyHandler, mouseHandler);
 
         super.addKeyListener(keyHandler);
         super.addMouseListener(mouseHandler);
         super.addMouseMotionListener(mouseHandler);
 
-        this.camera = new Camera(keyHandler, world);
+        this.world = new World();
+        this.player = world.spawnPlayer();
     }
 
     public void start() {
@@ -116,10 +119,13 @@ public class Game extends JPanel implements Runnable {
     private void update(double dt) {
         dt /= desiredUPS;
 
-        keyHandler.update(dt);
-        mouseHandler.update(dt);
+        // Game objects
+        player.update(dt, this);
+        world.update(dt, this);
 
-        camera.update(dt);
+        debugger.update(dt, this);
+        keyHandler.update(dt, this);
+        mouseHandler.update(dt, this);
     }
 
     private void render() {
@@ -129,34 +135,13 @@ public class Game extends JPanel implements Runnable {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        // Debug info
-        final String fpsUps = "FPS: " + globalFrames + ", UPS: " + globalUpdates;
-        g.setColor(Color.WHITE);
-        g.drawString(fpsUps, 1, 12);
-        drawDebugInfo(g);
+        debugger.render(g, this);
 
         // Game objects
-        camera.render(g);
+        world.render(g, this);
+        player.render(g, this);
 
         g.dispose();
-    }
-
-    private boolean debugEnabled = false;
-    private void drawDebugInfo(Graphics g) {
-        if(keyHandler.wasKeyPressed(KeyEvent.VK_F1)) {
-            debugEnabled = !debugEnabled;
-        }
-
-        if(!debugEnabled)
-            return;
-
-        final String position = "X: " + mouseHandler.getX() + ", Y: " + mouseHandler.getY();
-        final String aKeyHeld = "A: " + (keyHandler.isKeyDown(KeyEvent.VK_A) ? "pressed" : "released") +
-                ", length: " + keyHandler.getTicksKeyHeld(KeyEvent.VK_A);
-
-        g.drawString(position, 1, 25);
-        g.drawString(aKeyHeld, 1, 38);
     }
 
     public void setDesiredFPS(double desiredFPS) {
@@ -164,8 +149,42 @@ public class Game extends JPanel implements Runnable {
         this.timeF = 1_000_000_000 / desiredFPS;
     }
 
+    public int getCurrentFPS() {
+        return globalFrames;
+    }
+
     public void setDesiredUPS(double desiredUPS) {
         this.desiredUPS = desiredUPS;
         this.timeU = 1_000_000_000 / desiredUPS;
+    }
+
+    public int getCurrentUPS() {
+        return globalUpdates;
+    }
+
+    public static KeyHandler getKeyHandler() {
+        return keyHandler;
+    }
+
+    public static MouseHandler getMouseHandler() {
+        return mouseHandler;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
     }
 }

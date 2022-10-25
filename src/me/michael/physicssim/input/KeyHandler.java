@@ -1,5 +1,6 @@
 package me.michael.physicssim.input;
 
+import me.michael.physicssim.Game;
 import me.michael.physicssim.IUpdate;
 
 import java.awt.*;
@@ -10,7 +11,7 @@ public class KeyHandler implements KeyListener, IUpdate {
 
     private final int numKeys = 256;
     private final int[] longHoldKeys = new int[numKeys];
-    private boolean[] lastKeys = new boolean[numKeys];
+    private final boolean[] lastKeys = new boolean[numKeys];
     private final boolean[] keys = new boolean[numKeys];
 
     public boolean isKeyDown(int keyCode) {
@@ -38,8 +39,8 @@ public class KeyHandler implements KeyListener, IUpdate {
     }
 
     @Override
-    public void update(double dt) {
-        lastKeys = keys;
+    public void update(double dt, Game game) {
+        System.arraycopy(keys, 0, lastKeys, 0, numKeys);
         for(int keyCode = 0; keyCode < keys.length; keyCode++) {
             if(keys[keyCode])
                 longHoldKeys[keyCode]++;

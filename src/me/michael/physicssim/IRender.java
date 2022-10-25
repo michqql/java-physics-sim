@@ -4,5 +4,5 @@ import java.awt.*;
 
 public interface IRender {
 
-    void render(Graphics g);
+    void render(Graphics g, Game game);
 }

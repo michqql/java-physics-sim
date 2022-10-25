@@ -1,15 +1,51 @@
 package me.michael.physicssim.world;
 
-import static me.michael.physicssim.world.World.TILES_PER_CHUNK_SIDE;
+import me.michael.physicssim.Game;
+import me.michael.physicssim.IRender;
+import me.michael.physicssim.IUpdate;
 
-public class Chunk {
+import java.awt.*;
+
+import static me.michael.physicssim.world.World.TILES_PER_CHUNK_SIDE;
+import static me.michael.physicssim.world.World.TILES_PER_CHUNK;
+
+public class Chunk implements IUpdate, IRender {
 
     private final long chunkX, chunkY;
-    private final Block[] blocks = new Block[World.TILES_PER_CHUNK];
+    private final Block[] blocks = new Block[TILES_PER_CHUNK];
 
     public Chunk(int chunkX, int chunkY) {
         this.chunkX = chunkX;
         this.chunkY = chunkY;
+    }
+
+    @Override
+    public void render(Graphics g, Game game) {
+        final int len = Game.TILE_SIZE;
+        final int offset = TILES_PER_CHUNK_SIDE * len;
+        final int xOffset = (int) (chunkX * offset - game.getPlayer().getX());
+        final int yOffset = (int) (chunkY * offset - game.getPlayer().getY());
+
+        for(int i = 0; i < blocks.length; i++) {
+            int x = i % TILES_PER_CHUNK_SIDE;
+            int y = i / TILES_PER_CHUNK_SIDE;
+
+            g.setColor(Color.WHITE);
+            g.drawRect(xOffset + x * len, yOffset + y * len, Game.TILE_SIZE, Game.TILE_SIZE);
+        }
+    }
+
+    @Override
+    public void update(double dt, Game game) {
+
+    }
+
+    public long getChunkX() {
+        return chunkX;
+    }
+
+    public long getChunkY() {
+        return chunkY;
     }
 
     /**
