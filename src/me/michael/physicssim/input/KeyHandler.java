@@ -39,7 +39,7 @@ public class KeyHandler implements KeyListener, IUpdate {
 
     @Override
     public void update() {
-        lastKeys = keys;
+        System.arraycopy(keys, 0, lastKeys, 0, keys.length);
         for(int keyCode = 0; keyCode < keys.length; keyCode++) {
             if(keys[keyCode])
                 longHoldKeys[keyCode]++;

@@ -50,7 +50,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, IUpdate
 
     @Override
     public void update() {
-        this.lastButtons = buttons;
+        System.arraycopy(buttons, 0, lastButtons, 0, buttons.length);
         for(int code = 0; code < buttons.length; code++) {
             if(buttons[code])
                 longHoldButtons[code]++;

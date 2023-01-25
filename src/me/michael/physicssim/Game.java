@@ -2,10 +2,15 @@ package me.michael.physicssim;
 
 import me.michael.physicssim.input.KeyHandler;
 import me.michael.physicssim.input.MouseHandler;
+import me.michael.physicssim.player.GameMaster;
+import me.michael.physicssim.world.World;
+import me.michael.physicssim.world.blocks.SandBlock;
+import me.michael.physicssim.world.blocks.StoneBlock;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class Game extends JPanel implements Runnable {
 
@@ -33,6 +38,10 @@ public class Game extends JPanel implements Runnable {
     private final KeyHandler keyHandler;
     private final MouseHandler mouseHandler;
 
+    // World
+    private final World world = new World();
+    private final GameMaster gameMaster;
+
     public Game() {
         super.setPreferredSize(new Dimension(width, height));
         super.setBackground(Color.BLACK);
@@ -45,6 +54,12 @@ public class Game extends JPanel implements Runnable {
         super.addKeyListener(keyHandler);
         super.addMouseListener(mouseHandler);
         super.addMouseMotionListener(mouseHandler);
+
+        this.gameMaster = new GameMaster(keyHandler, world);
+
+        world.setBlockAt(4, 0, new StoneBlock(world));
+        world.setBlockAt(5, 0, new StoneBlock(world));
+        world.setBlockAt(6, 0, new StoneBlock(world));
     }
 
     public void start() {
@@ -52,7 +67,7 @@ public class Game extends JPanel implements Runnable {
             return;
 
         setDesiredFPS(60.0);
-        setDesiredUPS(60.0);
+        setDesiredUPS(20.0);
 
         running = true;
         this.thread = new Thread(this);
@@ -108,6 +123,9 @@ public class Game extends JPanel implements Runnable {
     }
 
     private void update() {
+        world.update();
+        gameMaster.update();
+
         keyHandler.update();
         mouseHandler.update();
     }
@@ -129,6 +147,9 @@ public class Game extends JPanel implements Runnable {
         g.drawString(fpsUps, 1, 12);
         g.drawString(position, 1, 25);
         g.drawString(aKeyHeld, 1, 38);
+
+        world.render(g);
+        gameMaster.render(g);
 
         g.setColor(Color.BLACK);
 
